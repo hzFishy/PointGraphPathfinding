@@ -15,24 +15,39 @@ void UPGPUtilityLibrary::DrawDebugGraphNetwork(UObject* WorldContextObject, cons
 	}
 }
 
-FString UPGPUtilityLibrary::DebugLogPrintGraphNetwork(UObject* WorldContextObject, const FPGPGraphNetwork& GraphNetwork)
+FString UPGPUtilityLibrary::DebugLogPrintGraphNetwork(const FPGPGraphNetwork& GraphNetwork)
 {
 	return GraphNetwork.DebugPrint();
 }
 
-FString UPGPUtilityLibrary::GetDebugStringGraphNetwork(UObject* WorldContextObject, const FPGPGraphNetwork& GraphNetwork)
+FString UPGPUtilityLibrary::GetDebugStringGraphNetwork(const FPGPGraphNetwork& GraphNetwork)
 {
 	return GraphNetwork.ToString();
 }
 
-FPGPGraphPoint UPGPUtilityLibrary::GetGeneratedGraphPointFromSource(UObject* WorldContextObject,
-	const FPGPGraphNetwork& GraphNetwork, TInstancedStruct<FPGPGraphSourcePoint> SourcePoint)
+FString UPGPUtilityLibrary::DebugLogPrintGraphFindPathResult(const FPGPGraphFindPathResult& FindPathResult)
+{
+	return FindPathResult.DebugPrint();
+}
+
+FString UPGPUtilityLibrary::GetDebugStringGraphFindPathResult(const FPGPGraphFindPathResult& FindPathResult)
+{
+	return FindPathResult.ToString();
+}
+
+void UPGPUtilityLibrary::DrawDebugGraphFindPathResult(UObject* WorldContextObject,
+	const FPGPGraphFindPathResult& FindPathResult, FPBPDrawDebugGraphFindPathResultParams Params)
 {
 	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
 
 	if (IsValid(World))
 	{
-		return GraphNetwork.GetGeneratedGraphPointFromSource(SourcePoint);
+		FindPathResult.DrawDebug(World, Params);
 	}
-	return FPGPGraphPoint();
+}
+
+FPGPGraphPoint UPGPUtilityLibrary::GetGeneratedGraphPointFromSource(
+	const FPGPGraphNetwork& GraphNetwork, TInstancedStruct<FPGPGraphSourcePoint> SourcePoint)
+{
+	return GraphNetwork.GetGeneratedGraphPointFromSource(SourcePoint);
 }

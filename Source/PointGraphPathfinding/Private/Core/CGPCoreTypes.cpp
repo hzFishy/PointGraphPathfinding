@@ -72,8 +72,7 @@ FPBPDrawDebugGraphNetworkParams::FPBPDrawDebugGraphNetworkParams():
 	LinkDepth(0), 
 	LinkTextOffset(FVector(0, 0, 50)),
 	LinkTextScale(2)
-{
-}
+{}
 
 FPGPGraphNetwork::FPGPGraphNetwork()
 {}
@@ -254,7 +253,7 @@ FString FPGPGraphNetwork::ToString() const
 	FU::Utils::FFUMessageBuilder MessageBuilder;
 	
 	MessageBuilder
-		.Append("FPGPGraphNetwork")
+		.NewLine("FPGPGraphNetwork")
 		.NewLinef(TEXT("Nb points: %i"), GraphPoints.Num())
 		.NewLinef(TEXT("Nb links: %i"), GraphLinks.Num())
 		.NewLine("----");
@@ -365,6 +364,24 @@ bool FPGPGraphQueryFilter::IsTraversalAllowed(const FGridNodeRef NodeA, const FG
 	return true;
 }
 
+FPBPDrawDebugGraphFindPathResultParams::FPBPDrawDebugGraphFindPathResultParams():
+	Time(0),
+	PointColor(FColor::Cyan),
+	PointRadius(20),
+	PointThickness(2),
+	PointDepth(0),
+	PointOffset(FVector(0, 0, 70)),
+	PointTextOffset(FVector(0, 0, 20)),
+	PointTextScale(2), 
+	LinkColor(FColor::White), 
+	LinkArrowSize(20), 
+	LinkThickness(2), 
+	LinkDepth(0), 
+	LinkOffset(FVector(0, 0, 70)),
+	LinkTextOffset(FVector(0, 0, 20)),
+	LinkTextScale(2)
+{}
+
 	
 	/*----------------------------------------------------------------------------
 		Find Path Result
@@ -373,7 +390,7 @@ FPGPGraphFindPathResult::FPGPGraphFindPathResult():
 	Result(EPGPGraphFindPathResult::Error)
 {}
 
-FPGPGraphFindPathResult::FPGPGraphFindPathResult(EGraphAStarResult InResult)
+FPGPGraphFindPathResult::FPGPGraphFindPathResult(EGraphAStarResult InResult, const TArray<FPGPGraphPoint>& InOutPath)
 {
 	switch (InResult) 
 	{
@@ -398,4 +415,84 @@ FPGPGraphFindPathResult::FPGPGraphFindPathResult(EGraphAStarResult InResult)
 			break;
 		}
 	}
+	
+	Path = InOutPath;
+}
+
+void FPGPGraphFindPathResult::DrawDebug(UWorld* World, const FPBPDrawDebugGraphFindPathResultParams& DrawDebugParams) const
+{
+	if (Result != EPGPGraphFindPathResult::Success) { return; }
+	
+	for (int32 i = 0; i < Path.Num(); i++)
+	{
+		auto& GraphPoint = Path[i];
+		
+		// draw point
+		FU::Draw::DrawDebugSphere(
+			World,
+			GraphPoint.WorldLocation + DrawDebugParams.PointOffset,
+			DrawDebugParams.PointRadius,
+			DrawDebugParams.PointColor,
+			DrawDebugParams.Time,
+			DrawDebugParams.PointThickness,
+			DrawDebugParams.PointDepth
+		);
+		
+		FU::Draw::DrawDebugString(
+			World,
+			GraphPoint.WorldLocation + DrawDebugParams.PointOffset + DrawDebugParams.PointTextOffset,
+			FString::Printf(TEXT("%i"), GraphPoint.PointId),
+			DrawDebugParams.PointColor, 
+			DrawDebugParams.Time, 
+			DrawDebugParams.PointTextScale
+		);
+		
+		// get link between this point and next
+		if (Path.IsValidIndex(i+1))
+		{
+			auto& NextGraphPoint = Path[i+1];
+			
+			FVector StartLocation = GraphPoint.WorldLocation + DrawDebugParams.LinkOffset;
+			FVector EndLocation = NextGraphPoint.WorldLocation + DrawDebugParams.LinkOffset;
+			FVector ScaledDirection = EndLocation - StartLocation;
+
+			FU::Draw::DrawDebugDirectionalArrow(
+				World,
+				StartLocation,
+				ScaledDirection,
+				DrawDebugParams.LinkColor,
+				DrawDebugParams.Time,
+				DrawDebugParams.LinkArrowSize,
+				DrawDebugParams.LinkThickness,
+				DrawDebugParams.LinkDepth
+			);
+		}
+	}
+}
+
+FString FPGPGraphFindPathResult::DebugPrint() const
+{
+	FString DebugString = ToString();
+	
+	// TODO: make custom log cat
+	FU_LOG_STemp_D("{0}", DebugString);
+	return DebugString;
+}
+
+FString FPGPGraphFindPathResult::ToString() const
+{
+	FU::Utils::FFUMessageBuilder MessageBuilder;
+	
+	MessageBuilder
+		.NewLine("FPGPGraphFindPathResult")
+		.NewLinef(TEXT("Result: %s"), *UEnum::GetValueAsString(Result))
+		.NewLinef(TEXT("Nb path points: %i"), Path.Num())
+		.NewLine("----");
+	
+	for (int32 i = 0; i < Path.Num(); i++)
+	{
+		MessageBuilder.NewLinef(TEXT("    [%i] Id: %i"), i, Path[i].PointId);
+	}
+	
+	return MessageBuilder.GetMessage();
 }

@@ -13,14 +13,26 @@ class POINTGRAPHPATHFINDING_API UPGPUtilityLibrary : public UBlueprintFunctionLi
 	GENERATED_BODY()
 	
 	UFUNCTION(BlueprintCallable, meta=(WorldContext="WorldContextObject"))
-	static void DrawDebugGraphNetwork(UObject* WorldContextObject, const FPGPGraphNetwork& GraphNetwork, FPBPDrawDebugGraphNetworkParams Params);
+	static void DrawDebugGraphNetwork(UObject* WorldContextObject, const FPGPGraphNetwork& GraphNetwork, 
+		FPBPDrawDebugGraphNetworkParams Params);
+	
+	UFUNCTION(BlueprintCallable)
+	static FString DebugLogPrintGraphNetwork(const FPGPGraphNetwork& GraphNetwork);
+	
+	UFUNCTION(BlueprintCallable)
+	static FString GetDebugStringGraphNetwork(const FPGPGraphNetwork& GraphNetwork);
+	
+	UFUNCTION(BlueprintCallable)
+	static FString DebugLogPrintGraphFindPathResult(const FPGPGraphFindPathResult& FindPathResult);
+	
+	UFUNCTION(BlueprintCallable)
+	static FString GetDebugStringGraphFindPathResult(const FPGPGraphFindPathResult& FindPathResult);
 	
 	UFUNCTION(BlueprintCallable, meta=(WorldContext="WorldContextObject"))
-	static FString DebugLogPrintGraphNetwork(UObject* WorldContextObject, const FPGPGraphNetwork& GraphNetwork);
+	static void DrawDebugGraphFindPathResult(UObject* WorldContextObject, const FPGPGraphFindPathResult& FindPathResult,
+		FPBPDrawDebugGraphFindPathResultParams Params);
 	
-	UFUNCTION(BlueprintCallable, meta=(WorldContext="WorldContextObject"))
-	static FString GetDebugStringGraphNetwork(UObject* WorldContextObject, const FPGPGraphNetwork& GraphNetwork);
-	
-	UFUNCTION(BlueprintPure, meta=(WorldContext="WorldContextObject"))
-	static FPGPGraphPoint GetGeneratedGraphPointFromSource(UObject* WorldContextObject, const FPGPGraphNetwork& GraphNetwork, TInstancedStruct<FPGPGraphSourcePoint> SourcePoint);
+	UFUNCTION(BlueprintPure)
+	static FPGPGraphPoint GetGeneratedGraphPointFromSource(const FPGPGraphNetwork& GraphNetwork, 
+		TInstancedStruct<FPGPGraphSourcePoint> SourcePoint);
 };

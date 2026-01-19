@@ -241,14 +241,82 @@ enum class EPGPGraphFindPathResult
 	Error
 };
 
+USTRUCT(BlueprintType, DisplayName="Draw Debug Graph Find Path Result Params")
+struct FPBPDrawDebugGraphFindPathResultParams
+{
+	GENERATED_BODY()
+	
+	FPBPDrawDebugGraphFindPathResultParams();
+	
+	//////////////////////////////////
+	// Global
+	UPROPERTY(BlueprintReadWrite)
+	float Time;
+	
+	//////////////////////////////////
+	// Points
+	UPROPERTY(BlueprintReadWrite)
+	FColor PointColor;
+	
+	UPROPERTY(BlueprintReadWrite)
+	float PointRadius;
+	
+	UPROPERTY(BlueprintReadWrite)
+	float PointThickness;
+	
+	UPROPERTY(BlueprintReadWrite)
+	float PointDepth;
+	
+	UPROPERTY(BlueprintReadWrite)
+	FVector PointOffset;
+	
+	UPROPERTY(BlueprintReadWrite)
+	FVector PointTextOffset;
+	
+	UPROPERTY(BlueprintReadWrite)
+	float PointTextScale;
+	
+	//////////////////////////////////
+	// Links
+	UPROPERTY(BlueprintReadWrite)
+	FColor LinkColor;
+	
+	UPROPERTY(BlueprintReadWrite)
+	float LinkArrowSize;
+	
+	UPROPERTY(BlueprintReadWrite)
+	float LinkThickness;
+	
+	UPROPERTY(BlueprintReadWrite)
+	float LinkDepth;
+	
+	UPROPERTY(BlueprintReadWrite)
+	FVector LinkOffset;
+	
+	UPROPERTY(BlueprintReadWrite)
+	FVector LinkTextOffset;
+	
+	UPROPERTY(BlueprintReadWrite)
+	float LinkTextScale;
+};
+
 USTRUCT(BlueprintType, DisplayName="Graph Find Path Result")
 struct POINTGRAPHPATHFINDING_API FPGPGraphFindPathResult
 {
 	GENERATED_BODY()
 	
 	FPGPGraphFindPathResult();
-	FPGPGraphFindPathResult(EGraphAStarResult InResult);
+	FPGPGraphFindPathResult(EGraphAStarResult InResult, const TArray<FPGPGraphPoint>& InOutPath);
 	
 	UPROPERTY(BlueprintReadOnly)
 	EPGPGraphFindPathResult Result;
+	
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FPGPGraphPoint> Path;
+	
+	void DrawDebug(UWorld* World, const FPBPDrawDebugGraphFindPathResultParams& DrawDebugParams) const;
+	
+	FString DebugPrint() const;
+	
+	FString ToString() const;
 };

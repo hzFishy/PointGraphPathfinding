@@ -39,12 +39,7 @@ FPGPGraphFindPathResult UPGPGraphSubsystem::FindPath(const FPGPGraphFindPathPara
 		OutPath
 	);
 	
-	for (int32 i = 0; i < OutPath.Num(); i++)
-	{
-		FU_LOG_STemp_W("{0}: {1}", i, *OutPath[i].ToString());
-	}
-	
-	return FPGPGraphFindPathResult(Result);
+	return FPGPGraphFindPathResult(Result, OutPath);
 }
 
 uint32 UPGPGraphSubsystem::GenerateNewSourcePointId()
