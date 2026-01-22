@@ -86,17 +86,3 @@ FVector FPGPGraphSourcePointActor::GetWorldLocation() const
 	}
 	return FVector();
 }
-
-	
-	/*----------------------------------------------------------------------------
-		Link Generator - Base
-	----------------------------------------------------------------------------*/
-	FPGPGraphSourcePointLinkGenerator::FPGPGraphSourcePointLinkGenerator()
-{}
-	
-	
-	/*----------------------------------------------------------------------------
-		Link Generator - Manual
-	----------------------------------------------------------------------------*/
-FPGPGraphSourcePointLinkGeneratorManual::FPGPGraphSourcePointLinkGeneratorManual()
-{}

@@ -21,7 +21,7 @@
  * - Spline point at index 2 can be connected to another Spline point at index 5.
  * 
  * Those "points" and "links" here are called Source Points and Source Links 
- * to differenciate them with Graph Points and Graph Point Links since those are generate with unique ids to fast lookup.
+ * to differenciate them with Graph Points and Graph Point Links since those are generate with unique ids for fast lookup.
  */
 
 	
@@ -98,31 +98,4 @@ struct FPGPGraphSourcePointActor : public FPGPGraphSourcePoint
 	virtual bool IsEqual(const TInstancedStruct<FPGPGraphSourcePoint>& OtherSourcePoint) const override;
 	
 	virtual FVector GetWorldLocation() const override;
-};
-
-	
-	/*----------------------------------------------------------------------------
-		Link Generator
-	----------------------------------------------------------------------------*/
-/**
- * With given Source Points generate links between them based on extra dta and rules.
- */
-USTRUCT(BlueprintType, DisplayName="Graph Source Point Link Generator")
-struct FPGPGraphSourcePointLinkGenerator
-{
-	GENERATED_BODY()
-	
-	FPGPGraphSourcePointLinkGenerator();
-	virtual ~FPGPGraphSourcePointLinkGenerator() = default;
-};
-
-/** 
- *  From raw user data, generate links.
- */
-USTRUCT(BlueprintType, DisplayName="Graph Source Point Link Generator Manual")
-struct FPGPGraphSourcePointLinkGeneratorManual
-{
-	GENERATED_BODY()
-	
-	FPGPGraphSourcePointLinkGeneratorManual();
 };

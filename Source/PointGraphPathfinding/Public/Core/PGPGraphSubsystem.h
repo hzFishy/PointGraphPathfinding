@@ -43,10 +43,10 @@ protected:
 		Core
 	----------------------------------------------------------------------------*/
 public:
-	UFUNCTION(BlueprintCallable, Category="PointGraphPathfinding")
+	UFUNCTION(BlueprintCallable, Category="PointGraphPathfinding|Network")
 	FPGPGraphNetwork GenerateGraphNetwork(const FPGPGraphNetworkGenerateParams& GenerateParams);
 	
-	UFUNCTION(BlueprintCallable, Category="PointGraphPathfinding")
+	UFUNCTION(BlueprintCallable, Category="PointGraphPathfinding|Pathfinding")
 	FPGPGraphFindPathResult FindPath(const FPGPGraphFindPathParams& Params);
 	
 	uint32 GenerateNewSourcePointId();

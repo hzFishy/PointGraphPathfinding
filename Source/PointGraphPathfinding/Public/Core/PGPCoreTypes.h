@@ -9,8 +9,17 @@
 class UPGPGraphSubsystem;
 
 
+/**
+ * How it works.
+ * 
+ * See PGPGraphSourceTypes.h for extra details for the user-side graph generation.
+ * Here we have the core types used for points, links and pathfining.
+ */
+
+
 /** 
  *  A link between two points.
+ *  A link is a one way link between two points.
  */
 USTRUCT(BlueprintType)
 struct POINTGRAPHPATHFINDING_API FPGPGraphPointLink
@@ -18,19 +27,24 @@ struct POINTGRAPHPATHFINDING_API FPGPGraphPointLink
 	GENERATED_BODY()
 	
 	FPGPGraphPointLink();
-	FPGPGraphPointLink(uint32 InId, uint32 InLinkedPointId);
+	FPGPGraphPointLink(uint32 InId, uint32 InStartPointId, uint32 InLinkedPointId);
 	
 	/** 
 	 * Unique ID of a link for this world session.
 	 */
 	uint32 LinkId;
 	
+	/** The "start" point Id we are linked to */
+	uint32 StartPointId;
+	
+	/** The "end" point Id we are linked to */
 	uint32 LinkedPointId;
 };
 
 /** 
  *  A point in our graph.
  *  Represents a 3D position in the game world.
+ *  A single point can have a infinite number of links.
  */
 USTRUCT(BlueprintType)
 struct POINTGRAPHPATHFINDING_API FPGPGraphPoint
@@ -38,7 +52,7 @@ struct POINTGRAPHPATHFINDING_API FPGPGraphPoint
 	GENERATED_BODY()
 	
 	FPGPGraphPoint();
-	/** Required by FGraphAStarDefaultNode, not used */
+	/** Required by FGraphAStarDefaultNode, not used by this plugin */
 	FPGPGraphPoint(int32 Index);
 	FPGPGraphPoint(uint32 InId, FVector InLocation);
 	
@@ -136,6 +150,9 @@ struct FPBPDrawDebugGraphNetworkParams
 	
 };
 
+/** 
+ *  A graph network is a container that holds points and links which can be used for operations such as FindPath.
+ */
 USTRUCT(BlueprintType, DisplayName="Graph Network")
 struct POINTGRAPHPATHFINDING_API FPGPGraphNetwork
 {
@@ -214,8 +231,10 @@ struct FPGPGraphQueryFilter
 	/** 
 	 * Whether to accept solutions that do not reach the goal
 	 */
+	// TODO: make it a project settings and/or FindPath param
 	bool WantsPartialSolution() const { return true; }
 	
+	// TODO: make it a project settings and/or FindPath param
 	bool ShouldIncludeStartNodeInPath() const { return true; }
 };
 
@@ -227,9 +246,15 @@ struct POINTGRAPHPATHFINDING_API FPGPGraphFindPathParams
 	UPROPERTY(BlueprintReadWrite)
 	FPGPGraphNetwork GraphNetwork;
 	
+	/** 
+	 *  The point used as the start, MUST be in the Graph Network
+	 */
 	UPROPERTY(BlueprintReadWrite)
 	FPGPGraphPoint StartPoint;
 	
+	/** 
+	 *  The point used as the end, MUST be in the Graph Network
+	 */
 	UPROPERTY(BlueprintReadWrite)
 	FPGPGraphPoint EndPoint;
 };

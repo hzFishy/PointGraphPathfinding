@@ -13,11 +13,13 @@
 	----------------------------------------------------------------------------*/
 FPGPGraphPointLink::FPGPGraphPointLink() :
 	LinkId(0), 
+	StartPointId(0),
 	LinkedPointId(0)
 {}
 
-FPGPGraphPointLink::FPGPGraphPointLink(uint32 InId, uint32 InLinkedPointId) :
+FPGPGraphPointLink::FPGPGraphPointLink(uint32 InId, uint32 InStartPointId, uint32 InLinkedPointId) :
 	LinkId(InId), 
+	StartPointId(InStartPointId),
 	LinkedPointId(InLinkedPointId)
 {}
 
@@ -96,6 +98,7 @@ void FPGPGraphNetwork::Initialize(UPGPGraphSubsystem* GraphSubsystem, const FPGP
 		GraphPoints.Emplace(NewPoint.PointId, NewPoint);
 	}
 	
+	// TODO: kinda slow since we iterate everything, maybe generate a temporary TMap for faster lookup
 	auto GetGeneratedPoint = [&] (const FPGPGraphSourcePoint& LinkedPoint) -> uint32
 	{
 		// from a given Linked Source Point, try to find its id from previously generated ids.
@@ -124,7 +127,7 @@ void FPGPGraphNetwork::Initialize(UPGPGraphSubsystem* GraphSubsystem, const FPGP
 			uint32 MatchingLinkedPointId = GetGeneratedPoint(LinkedPointBase);
 			
 			// create link
-			FPGPGraphPointLink NewLink(GraphSubsystem->GenerateNewLinkId(), MatchingLinkedPointId);
+			FPGPGraphPointLink NewLink(GraphSubsystem->GenerateNewLinkId(), StartPointId, MatchingLinkedPointId);
 			
 			// add link id to start point
 			auto& GraphPoint = GetMutableGraphPoint(StartPointId);
@@ -448,9 +451,10 @@ void FPGPGraphFindPathResult::DrawDebug(UWorld* World, const FPBPDrawDebugGraphF
 		);
 		
 		// get link between this point and next
-		if (Path.IsValidIndex(i+1))
+		const int32 NextIndex = i + 1;
+		if (Path.IsValidIndex(NextIndex))
 		{
-			auto& NextGraphPoint = Path[i+1];
+			auto& NextGraphPoint = Path[NextIndex];
 			
 			FVector StartLocation = GraphPoint.WorldLocation + DrawDebugParams.LinkOffset;
 			FVector EndLocation = NextGraphPoint.WorldLocation + DrawDebugParams.LinkOffset;

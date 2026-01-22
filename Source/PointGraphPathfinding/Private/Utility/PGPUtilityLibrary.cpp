@@ -3,7 +3,10 @@
 
 #include "Utility/PGPUtilityLibrary.h"
 
-
+	
+	/*----------------------------------------------------------------------------
+		Network
+	----------------------------------------------------------------------------*/
 void UPGPUtilityLibrary::DrawDebugGraphNetwork(UObject* WorldContextObject, const FPGPGraphNetwork& GraphNetwork, 
 	FPBPDrawDebugGraphNetworkParams Params)
 {
@@ -25,6 +28,16 @@ FString UPGPUtilityLibrary::GetDebugStringGraphNetwork(const FPGPGraphNetwork& G
 	return GraphNetwork.ToString();
 }
 
+FPGPGraphPoint UPGPUtilityLibrary::GetGeneratedGraphPointFromSource(const FPGPGraphNetwork& GraphNetwork, 
+	TInstancedStruct<FPGPGraphSourcePoint> SourcePoint)
+{
+	return GraphNetwork.GetGeneratedGraphPointFromSource(SourcePoint);
+}
+
+	
+	/*----------------------------------------------------------------------------
+		Pathfinding
+	----------------------------------------------------------------------------*/
 FString UPGPUtilityLibrary::DebugLogPrintGraphFindPathResult(const FPGPGraphFindPathResult& FindPathResult)
 {
 	return FindPathResult.DebugPrint();
@@ -44,10 +57,4 @@ void UPGPUtilityLibrary::DrawDebugGraphFindPathResult(UObject* WorldContextObjec
 	{
 		FindPathResult.DrawDebug(World, Params);
 	}
-}
-
-FPGPGraphPoint UPGPUtilityLibrary::GetGeneratedGraphPointFromSource(
-	const FPGPGraphNetwork& GraphNetwork, TInstancedStruct<FPGPGraphSourcePoint> SourcePoint)
-{
-	return GraphNetwork.GetGeneratedGraphPointFromSource(SourcePoint);
 }
