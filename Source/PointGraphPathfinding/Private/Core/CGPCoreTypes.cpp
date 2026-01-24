@@ -1,6 +1,7 @@
 ﻿// By hzFishy - 2026 - Do whatever you want with it.
 
 
+#include "Asserts/FUAsserts.h"
 #include "Core/PGPCoreTypes.h"
 #include "Core/PGPGraphSubsystem.h"
 #include "Draw/FUDraw.h"
@@ -88,13 +89,16 @@ void FPGPGraphNetwork::Initialize(UPGPGraphSubsystem* GraphSubsystem, const FPGP
 	 */
 	
 	// Generate points
-	for (auto& SourcePointEntry : GenerateParams.SourcePoints)
+	for (int i = 0; i < GenerateParams.SourcePoints.Num(); ++i)
 	{
-		auto& SourcePointBase = SourcePointEntry.Get<FPGPGraphSourcePoint>();
+		auto& SourcePointEntry = GenerateParams.SourcePoints[i];
 		
+		auto& SourcePointBase = SourcePointEntry.Get<FPGPGraphSourcePoint>();
+	
 		FPGPGraphPoint NewPoint(GraphSubsystem->GenerateNewPointId(), SourcePointBase.GetWorldLocation());
 		NewPoint.SourcePoint = SourcePointEntry;
-		
+	
+		GraphPointsIndex.Emplace(i, NewPoint.PointId);
 		GraphPoints.Emplace(NewPoint.PointId, NewPoint);
 	}
 	
@@ -181,6 +185,15 @@ FPGPGraphPoint FPGPGraphNetwork::GetGeneratedGraphPointFromSource(
 	return 0;
 }
 
+FPGPGraphPoint FPGPGraphNetwork::GetGeneratedGraphPointFromIndex(int32 Index) const
+{
+	if (FU_ENSURE(GraphPointsIndex.Contains(Index)))
+	{
+		return GraphPoints[GraphPointsIndex[Index]];
+	}
+	return FPGPGraphPoint();
+}
+
 void FPGPGraphNetwork::DrawDebug(UWorld* World, const FPBPDrawDebugGraphNetworkParams& DrawDebugParams) const
 {
 	for (auto& GraphPointPair : GraphPoints)
@@ -201,7 +214,7 @@ void FPGPGraphNetwork::DrawDebug(UWorld* World, const FPBPDrawDebugGraphNetworkP
 		FU::Draw::DrawDebugString(
 			World,
 			GraphPoint.WorldLocation + DrawDebugParams.PointTextOffset,
-			FString::Printf(TEXT("%i"), GraphPoint.PointId),
+			FString::Printf(TEXT("Id: %i"), GraphPoint.PointId),
 			DrawDebugParams.PointColor, 
 			DrawDebugParams.Time, 
 			DrawDebugParams.PointTextScale
@@ -233,7 +246,7 @@ void FPGPGraphNetwork::DrawDebug(UWorld* World, const FPBPDrawDebugGraphNetworkP
 			FU::Draw::DrawDebugString(
 				World,
 				MiddleLocation + DrawDebugParams.LinkTextOffset,
-				FString::Printf(TEXT("%i"), LinkId),
+				FString::Printf(TEXT("Id: %i"), LinkId),
 				DrawDebugParams.LinkColor, 
 				DrawDebugParams.Time, 
 				DrawDebugParams.LinkTextScale
@@ -367,17 +380,25 @@ bool FPGPGraphQueryFilter::IsTraversalAllowed(const FGridNodeRef NodeA, const FG
 	return true;
 }
 
+FPGPGraphFindPathParams::FPGPGraphFindPathParams() {}
+
 FPBPDrawDebugGraphFindPathResultParams::FPBPDrawDebugGraphFindPathResultParams():
 	Time(0),
-	PointColor(FColor::Cyan),
+	StartPointColor(FColor::Purple),
+	IntermediatePointColor(FColor::Green),
+	EndPointColor(FColor::Blue),
+	IncompleteStartPointColor(FColor::Yellow),
+	IncompleteIntermediatePointColor(FColor::Orange),
+	IncompleteEndPointColor(FColor::Red),
+	ErrorPointColor(FColor::Red),
 	PointRadius(20),
 	PointThickness(2),
 	PointDepth(0),
 	PointOffset(FVector(0, 0, 70)),
 	PointTextOffset(FVector(0, 0, 20)),
 	PointTextScale(2), 
-	LinkColor(FColor::White), 
-	LinkArrowSize(20), 
+	LinkColor(FColor::White),
+	LinkArrowSize(500), 
 	LinkThickness(2), 
 	LinkDepth(0), 
 	LinkOffset(FVector(0, 0, 70)),
@@ -409,7 +430,8 @@ FPGPGraphFindPathResult::FPGPGraphFindPathResult(EGraphAStarResult InResult, con
 		}
 	case GoalUnreachable:
 		{
-			Result = EPGPGraphFindPathResult::Error;
+			Result = InOutPath.IsEmpty() 
+				? EPGPGraphFindPathResult::Error : EPGPGraphFindPathResult::SuccessPartialPath;
 			break;
 		}
 	case InfiniteLoop:
@@ -424,52 +446,109 @@ FPGPGraphFindPathResult::FPGPGraphFindPathResult(EGraphAStarResult InResult, con
 
 void FPGPGraphFindPathResult::DrawDebug(UWorld* World, const FPBPDrawDebugGraphFindPathResultParams& DrawDebugParams) const
 {
-	if (Result != EPGPGraphFindPathResult::Success) { return; }
-	
-	for (int32 i = 0; i < Path.Num(); i++)
+	if (Result == EPGPGraphFindPathResult::Error)
 	{
-		auto& GraphPoint = Path[i];
-		
-		// draw point
-		FU::Draw::DrawDebugSphere(
-			World,
-			GraphPoint.WorldLocation + DrawDebugParams.PointOffset,
-			DrawDebugParams.PointRadius,
-			DrawDebugParams.PointColor,
-			DrawDebugParams.Time,
-			DrawDebugParams.PointThickness,
-			DrawDebugParams.PointDepth
-		);
-		
-		FU::Draw::DrawDebugString(
-			World,
-			GraphPoint.WorldLocation + DrawDebugParams.PointOffset + DrawDebugParams.PointTextOffset,
-			FString::Printf(TEXT("%i"), GraphPoint.PointId),
-			DrawDebugParams.PointColor, 
-			DrawDebugParams.Time, 
-			DrawDebugParams.PointTextScale
-		);
-		
-		// get link between this point and next
-		const int32 NextIndex = i + 1;
-		if (Path.IsValidIndex(NextIndex))
+		if (DrawDebugParams.FindPathParams.StartPoint.IsValid())
 		{
-			auto& NextGraphPoint = Path[NextIndex];
-			
-			FVector StartLocation = GraphPoint.WorldLocation + DrawDebugParams.LinkOffset;
-			FVector EndLocation = NextGraphPoint.WorldLocation + DrawDebugParams.LinkOffset;
-			FVector ScaledDirection = EndLocation - StartLocation;
-
-			FU::Draw::DrawDebugDirectionalArrow(
+			FU::Draw::DrawDebugSphere(
 				World,
-				StartLocation,
-				ScaledDirection,
-				DrawDebugParams.LinkColor,
+				DrawDebugParams.FindPathParams.StartPoint.WorldLocation + DrawDebugParams.PointOffset,
+				DrawDebugParams.PointRadius,
+				DrawDebugParams.ErrorPointColor,
 				DrawDebugParams.Time,
-				DrawDebugParams.LinkArrowSize,
-				DrawDebugParams.LinkThickness,
-				DrawDebugParams.LinkDepth
+				DrawDebugParams.PointThickness,
+				DrawDebugParams.PointDepth
 			);
+		}
+		if (DrawDebugParams.FindPathParams.EndPoint.IsValid())
+		{
+			FU::Draw::DrawDebugSphere(
+				World,
+				DrawDebugParams.FindPathParams.EndPoint.WorldLocation + DrawDebugParams.PointOffset,
+				DrawDebugParams.PointRadius,
+				DrawDebugParams.ErrorPointColor,
+				DrawDebugParams.Time,
+				DrawDebugParams.PointThickness,
+				DrawDebugParams.PointDepth
+			);
+		}
+	}
+	else
+	{
+		for (int32 i = 0; i < Path.Num(); i++)
+		{
+			auto& GraphPoint = Path[i];
+			
+			FColor ColorPoint;
+			if (i == 0)
+			{
+				ColorPoint = Result == EPGPGraphFindPathResult::Success 
+					? DrawDebugParams.StartPointColor : DrawDebugParams.IncompleteStartPointColor;
+			}
+			else if (i == Path.Num() - 1)
+			{
+				ColorPoint = Result == EPGPGraphFindPathResult::Success 
+					? DrawDebugParams.EndPointColor : DrawDebugParams.IncompleteEndPointColor;
+			}
+			else
+			{
+				ColorPoint = Result == EPGPGraphFindPathResult::Success 
+					? DrawDebugParams.IntermediatePointColor : DrawDebugParams.IncompleteIntermediatePointColor;
+			}
+		
+			// draw point
+			FU::Draw::DrawDebugSphere(
+				World,
+				GraphPoint.WorldLocation + DrawDebugParams.PointOffset,
+				DrawDebugParams.PointRadius,
+				ColorPoint,
+				DrawDebugParams.Time,
+				DrawDebugParams.PointThickness,
+				DrawDebugParams.PointDepth
+			);
+		
+			FU::Draw::DrawDebugString(
+				World,
+				GraphPoint.WorldLocation + DrawDebugParams.PointOffset + DrawDebugParams.PointTextOffset,
+				FString::Printf(TEXT("[%i] Id: %i"), i, GraphPoint.PointId),
+				DrawDebugParams.IntermediatePointColor, 
+				DrawDebugParams.Time, 
+				DrawDebugParams.PointTextScale
+			);
+			
+			if (i == Path.Num() - 1 && Result == EPGPGraphFindPathResult::SuccessPartialPath)
+			{
+				FU::Draw::DrawDebugString(
+					World,
+					GraphPoint.WorldLocation + DrawDebugParams.PointOffset + (DrawDebugParams.PointTextOffset * 2),
+					"Find path couldn't find next point from here",
+					DrawDebugParams.IncompleteEndPointColor, 
+					DrawDebugParams.Time, 
+					DrawDebugParams.PointTextScale
+				);
+			}
+		
+			// get link between this point and next
+			const int32 NextIndex = i + 1;
+			if (Path.IsValidIndex(NextIndex))
+			{
+				auto& NextGraphPoint = Path[NextIndex];
+			
+				FVector StartLocation = GraphPoint.WorldLocation + DrawDebugParams.LinkOffset;
+				FVector EndLocation = NextGraphPoint.WorldLocation + DrawDebugParams.LinkOffset;
+				FVector ScaledDirection = EndLocation - StartLocation;
+
+				FU::Draw::DrawDebugDirectionalArrow(
+					World,
+					StartLocation,
+					ScaledDirection,
+					DrawDebugParams.LinkColor,
+					DrawDebugParams.Time,
+					DrawDebugParams.LinkArrowSize,
+					DrawDebugParams.LinkThickness,
+					DrawDebugParams.LinkDepth
+				);
+			}
 		}
 	}
 }

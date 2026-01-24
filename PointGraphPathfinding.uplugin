@@ -18,6 +18,11 @@
 			"Name": "PointGraphPathfinding",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "PointGraphPathfindingEditor",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [

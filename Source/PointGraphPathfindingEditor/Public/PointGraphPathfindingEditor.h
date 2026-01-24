@@ -1,0 +1,14 @@
+﻿// By hzFishy - 2026 - Do whatever you want with it.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Modules/ModuleManager.h"
+
+class FPointGraphPathfindingEditorModule : public IModuleInterface
+{
+public:
+    
+    virtual void StartupModule() override;
+    virtual void ShutdownModule() override;
+};

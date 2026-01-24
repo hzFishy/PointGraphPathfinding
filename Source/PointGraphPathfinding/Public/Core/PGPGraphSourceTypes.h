@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿// By hzFishy - 2026 - Do whatever you want with it.
 
 #pragma once
 
@@ -22,6 +22,8 @@
  * 
  * Those "points" and "links" here are called Source Points and Source Links 
  * to differenciate them with Graph Points and Graph Point Links since those are generate with unique ids for fast lookup.
+ * 
+ * Check PGPUtilityLibrary.h for utility functions for C++/BP to easily generate Source Points.
  */
 
 	
@@ -47,17 +49,18 @@ struct FPGPGraphSourcePoint
 };
 
 /** 
- *  Uses a Vector.
+ *  Uses a location.
  */
-USTRUCT(BlueprintType, DisplayName="Graph Source Point Vector")
-struct FPGPGraphSourcePointVector : public FPGPGraphSourcePoint
+USTRUCT(BlueprintType, DisplayName="Graph Source Point Location")
+struct FPGPGraphSourcePointLocation : public FPGPGraphSourcePoint
 {
 	GENERATED_BODY()
 	
-	FPGPGraphSourcePointVector();
+	FPGPGraphSourcePointLocation();
+	FPGPGraphSourcePointLocation(FVector InLocation);
 	
 	UPROPERTY(BlueprintReadWrite)
-	FVector Vector;
+	FVector Location;
 	
 	virtual bool IsEqual(const TInstancedStruct<FPGPGraphSourcePoint>& OtherSourcePoint) const override;
 	
@@ -73,6 +76,7 @@ struct FPGPGraphSourcePointSceneComponent : public FPGPGraphSourcePoint
 	GENERATED_BODY()
 	
 	FPGPGraphSourcePointSceneComponent();
+	FPGPGraphSourcePointSceneComponent(USceneComponent* InComponent);
 	
 	UPROPERTY(BlueprintReadWrite)
 	TWeakObjectPtr<USceneComponent> SceneComponent;
@@ -91,6 +95,7 @@ struct FPGPGraphSourcePointActor : public FPGPGraphSourcePoint
 	GENERATED_BODY()
 	
 	FPGPGraphSourcePointActor();
+	FPGPGraphSourcePointActor(AActor* InActor);
 	
 	UPROPERTY(BlueprintReadWrite)
 	TWeakObjectPtr<AActor> Actor;

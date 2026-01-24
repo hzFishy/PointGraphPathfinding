@@ -8,7 +8,8 @@ public class PointGraphPathfinding : ModuleRules
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
-		PublicDefinitions.Add("ENABLE_GRAPH_ASTAR_LOGGING=1");
+		// For extra debugging regarding the engine built in A* 
+		//PublicDefinitions.Add("ENABLE_GRAPH_ASTAR_LOGGING=1");
 		
 		PublicDependencyModuleNames.AddRange(new string[]
 			{

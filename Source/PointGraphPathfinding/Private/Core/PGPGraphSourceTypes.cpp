@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿// By hzFishy - 2026 - Do whatever you want with it.
 
 
 #include "Core/PGPGraphSourceTypes.h"
@@ -26,21 +26,25 @@ FVector FPGPGraphSourcePoint::GetWorldLocation() const
 
 	
 	/*----------------------------------------------------------------------------
-		Point - Vector
+		Point - Location
 	----------------------------------------------------------------------------*/
-FPGPGraphSourcePointVector::FPGPGraphSourcePointVector():
-	Vector(FVector::ZeroVector)
+FPGPGraphSourcePointLocation::FPGPGraphSourcePointLocation():
+	Location(FVector::ZeroVector)
 {}
 
-bool FPGPGraphSourcePointVector::IsEqual(const TInstancedStruct<FPGPGraphSourcePoint>& OtherSourcePoint) const
+FPGPGraphSourcePointLocation::FPGPGraphSourcePointLocation(FVector InLocation):
+	Location(InLocation)
+{}
+
+bool FPGPGraphSourcePointLocation::IsEqual(const TInstancedStruct<FPGPGraphSourcePoint>& OtherSourcePoint) const
 {
-	auto& Self = OtherSourcePoint.Get<FPGPGraphSourcePointVector>();
-	return Vector == Self.Vector;
+	auto& Self = OtherSourcePoint.Get<FPGPGraphSourcePointLocation>();
+	return Location == Self.Location;
 }
 
-FVector FPGPGraphSourcePointVector::GetWorldLocation() const
+FVector FPGPGraphSourcePointLocation::GetWorldLocation() const
 {
-	return Vector;
+	return Location;
 }
 
 	
@@ -49,6 +53,11 @@ FVector FPGPGraphSourcePointVector::GetWorldLocation() const
 	----------------------------------------------------------------------------*/
 FPGPGraphSourcePointSceneComponent::FPGPGraphSourcePointSceneComponent()
 {}
+
+FPGPGraphSourcePointSceneComponent::FPGPGraphSourcePointSceneComponent(USceneComponent* InComponent)
+{
+	SceneComponent = InComponent;
+}
 
 bool FPGPGraphSourcePointSceneComponent::IsEqual(const TInstancedStruct<FPGPGraphSourcePoint>& OtherSourcePoint) const
 {
@@ -71,6 +80,11 @@ FVector FPGPGraphSourcePointSceneComponent::GetWorldLocation() const
 	----------------------------------------------------------------------------*/
 FPGPGraphSourcePointActor::FPGPGraphSourcePointActor()
 {}
+
+FPGPGraphSourcePointActor::FPGPGraphSourcePointActor(AActor* InActor)
+{
+	Actor = InActor;
+}
 
 bool FPGPGraphSourcePointActor::IsEqual(const TInstancedStruct<FPGPGraphSourcePoint>& OtherSourcePoint) const
 {

@@ -90,7 +90,10 @@ struct POINTGRAPHPATHFINDING_API FPGPGraphNetworkGenerateParams
 	GENERATED_BODY()
 	
 	FPGPGraphNetworkGenerateParams();
-	
+
+	/** 
+	 * This MUST NOT have duplicates (= different Source Point entry for same represented 3d point)
+	 */
 	UPROPERTY(BlueprintReadWrite)
 	TArray<TInstancedStruct<FPGPGraphSourcePoint>> SourcePoints;
 };
@@ -161,6 +164,8 @@ struct POINTGRAPHPATHFINDING_API FPGPGraphNetwork
 	FPGPGraphNetwork();
 	
 protected:
+	/** Key: Source Point Index */
+	TMap<int32, uint32> GraphPointsIndex;
 	TMap<uint32, FPGPGraphPoint> GraphPoints;
 	TMap<uint32, FPGPGraphPointLink> GraphLinks;
 	
@@ -173,6 +178,8 @@ public:
 	const FPGPGraphPointLink* GetGraphLinkPtr(uint32 LinkId) const;
 
 	FPGPGraphPoint GetGeneratedGraphPointFromSource(const TInstancedStruct<FPGPGraphSourcePoint>& SourcePoint) const;
+	
+	FPGPGraphPoint GetGeneratedGraphPointFromIndex(int32 Index) const;
 	
 	void DrawDebug(UWorld* World, const FPBPDrawDebugGraphNetworkParams& DrawDebugParams) const;
 	
@@ -243,17 +250,19 @@ struct POINTGRAPHPATHFINDING_API FPGPGraphFindPathParams
 {
 	GENERATED_BODY()
 	
+	FPGPGraphFindPathParams();
+	
 	UPROPERTY(BlueprintReadWrite)
 	FPGPGraphNetwork GraphNetwork;
 	
 	/** 
-	 *  The point used as the start, MUST be in the Graph Network
+	 *  The point used as the start, MUST be in the Graph Network.
 	 */
 	UPROPERTY(BlueprintReadWrite)
 	FPGPGraphPoint StartPoint;
 	
 	/** 
-	 *  The point used as the end, MUST be in the Graph Network
+	 *  The point used as the end, MUST be in the Graph Network.
 	 */
 	UPROPERTY(BlueprintReadWrite)
 	FPGPGraphPoint EndPoint;
@@ -263,6 +272,7 @@ UENUM(DisplayName="Graph Find Path Result")
 enum class EPGPGraphFindPathResult
 {
 	Success,
+	SuccessPartialPath,
 	Error
 };
 
@@ -276,12 +286,33 @@ struct FPBPDrawDebugGraphFindPathResultParams
 	//////////////////////////////////
 	// Global
 	UPROPERTY(BlueprintReadWrite)
+	FPGPGraphFindPathParams FindPathParams;
+	
+	UPROPERTY(BlueprintReadWrite)
 	float Time;
 	
 	//////////////////////////////////
 	// Points
 	UPROPERTY(BlueprintReadWrite)
-	FColor PointColor;
+	FColor StartPointColor;
+	
+	UPROPERTY(BlueprintReadWrite)
+	FColor IntermediatePointColor;
+	
+	UPROPERTY(BlueprintReadWrite)
+	FColor EndPointColor;
+	
+	UPROPERTY(BlueprintReadWrite)
+	FColor IncompleteStartPointColor;
+	
+	UPROPERTY(BlueprintReadWrite)
+	FColor IncompleteIntermediatePointColor;
+	
+	UPROPERTY(BlueprintReadWrite)
+	FColor IncompleteEndPointColor;
+	
+	UPROPERTY(BlueprintReadWrite)
+	FColor ErrorPointColor;
 	
 	UPROPERTY(BlueprintReadWrite)
 	float PointRadius;
