@@ -174,6 +174,9 @@ public:
 	UFUNCTION(BlueprintPure, Category="PointGraphPathfinding|Network")
 	static FPGPGraphPoint GetGeneratedGraphPointFromIndex(const FPGPGraphNetwork& GraphNetwork, int32 Index);
 	
+	UFUNCTION(BlueprintPure, Category="PointGraphPathfinding|Network")
+	static bool IsGraphNetworkEmpty(const FPGPGraphNetwork& GraphNetwork);
+	
 	
 	/*----------------------------------------------------------------------------
 		Pathfinding

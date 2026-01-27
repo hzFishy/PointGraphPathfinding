@@ -12,18 +12,17 @@ public class PointGraphPathfindingEditor : ModuleRules
             new string[]
             {
                 "Core",
-                "EditorFramework",
-                "UnrealEd",
+                "EditorFramework", "UnrealEd",
+                "PointGraphPathfinding"
             }
         );
 
         PrivateDependencyModuleNames.AddRange(
             new string[]
             {
-                "CoreUObject",
-                "Engine",
-                "Slate",
-                "SlateCore"
+                "CoreUObject", "Engine",
+                "Slate", "SlateCore",
+                "PropertyEditor"
             }
         );
     }

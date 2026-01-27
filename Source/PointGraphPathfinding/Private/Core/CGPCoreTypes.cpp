@@ -194,6 +194,11 @@ FPGPGraphPoint FPGPGraphNetwork::GetGeneratedGraphPointFromIndex(int32 Index) co
 	return FPGPGraphPoint();
 }
 
+bool FPGPGraphNetwork::IsEmpty() const
+{
+	return GraphPoints.IsEmpty() && GraphLinks.IsEmpty();
+}
+
 void FPGPGraphNetwork::DrawDebug(UWorld* World, const FPBPDrawDebugGraphNetworkParams& DrawDebugParams) const
 {
 	for (auto& GraphPointPair : GraphPoints)

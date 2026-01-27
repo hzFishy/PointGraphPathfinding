@@ -181,8 +181,9 @@ public:
 	
 	FPGPGraphPoint GetGeneratedGraphPointFromIndex(int32 Index) const;
 	
-	void DrawDebug(UWorld* World, const FPBPDrawDebugGraphNetworkParams& DrawDebugParams) const;
+	bool IsEmpty() const;
 	
+	void DrawDebug(UWorld* World, const FPBPDrawDebugGraphNetworkParams& DrawDebugParams) const;
 	FString DebugPrint() const;
 	FString ToString() const;
 };

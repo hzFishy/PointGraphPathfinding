@@ -233,7 +233,12 @@ FPGPGraphPoint UPGPUtilityLibrary::GetGeneratedGraphPointFromIndex(const FPGPGra
 	return GraphNetwork.GetGeneratedGraphPointFromIndex(Index);
 }
 
-	
+bool UPGPUtilityLibrary::IsGraphNetworkEmpty(const FPGPGraphNetwork& GraphNetwork)
+{
+	return GraphNetwork.IsEmpty();
+}
+
+
 	/*----------------------------------------------------------------------------
 		Pathfinding
 	----------------------------------------------------------------------------*/
